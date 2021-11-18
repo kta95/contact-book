@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'    // import effect hooks
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
-import axios from 'axios'
+import PersonsService from './services/PersonsService'
 
 const App = () => {
   const [ persons, setPersons ] = useState([]) 
@@ -15,12 +15,9 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault();
     
-    const newId = persons.length + 1
-
     const newPerson = {
       name: newName,
       number: newNumber,
-      id : newId
     }
     const allNames = persons.map(person => person.name)
     console.log('all names', allNames)
@@ -28,11 +25,17 @@ const App = () => {
       alert(`${newName} is already added to phonebook`)
       setNewName('')
     } else {
-      const personList = persons.concat(newPerson);
-      console.log('persons', personList)
-      setPersons(personList)
-      setNewName('')
-      setNewNumber(' ')
+      PersonsService
+        .create(newPerson)
+        .then(returnPerson => {
+          console.log('newPerson', newPerson)
+          console.log('response data', returnPerson)
+          const personList = persons.concat(returnPerson);
+          console.log('persons', personList)
+          setPersons(personList)
+          setNewName('')
+          setNewNumber(' ')
+        })
     }
   }
 
@@ -58,16 +61,15 @@ const App = () => {
   })
   console.log('name to show', nameToShow)
 
+  // use Effect hooks for fetching datas
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('data', response.data)
-        setPersons(response.data)
+    PersonsService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
       })
-
   }, [])
-
+  
   return (
     <div>
       <h2>Phonebook</h2>
