@@ -52,15 +52,6 @@ const App = () => {
     setFilterWord(event.target.value);
   }
 
-  const nameToShow = persons.filter( person => {
-    let newPerson = person.name.toLowerCase();
-    let filter = newFilterWord.toLowerCase()
-    if (newPerson.includes(filter)) {
-      return person;
-    }
-  })
-  console.log('name to show', nameToShow)
-
   // use Effect hooks for fetching datas
   useEffect(() => {
     PersonsService
@@ -70,6 +61,24 @@ const App = () => {
       })
   }, [])
   
+  const handleDelete = (id) => {
+    PersonsService
+      .remove(id)
+      .then(() => {
+        setPersons(persons.filter(person => person.id !== id))
+        console.log('persons after del', persons)
+      })
+  }
+
+  const nameToShow = persons.filter( person => {
+    let newPerson = person.name.toLowerCase();
+    let filter = newFilterWord.toLowerCase()
+    if (newPerson.includes(filter)) {
+      return person;
+    }
+  })
+  console.log('name to show', nameToShow)
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -82,7 +91,13 @@ const App = () => {
                   numberHandler={handleNumberChange}
        />
       <h3>Numbers</h3>
-      <Persons nameToShow={nameToShow} />
+      {nameToShow.map( person => 
+        <Persons 
+          key={person.id} 
+          name={person.name} 
+          number={person.number}
+          deleteHandler={() => handleDelete(person.id)}/>        
+      )}
     </div>
   )
 }

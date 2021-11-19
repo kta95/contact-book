@@ -2,7 +2,7 @@
   "persons": [
     {
       "name": "Arto Hellas",
-      "number": "040-1234567",
+      "number": "040-123456",
       "id": 1
     },
     {
@@ -19,16 +19,6 @@
       "name": "Mary Poppendieck",
       "number": "39-23-6423122",
       "id": 4
-    },
-    {
-      "name": "Kyaw Thet Aung",
-      "number": "09-78-5085329",
-      "id": 5
-    },
-    {
-      "name": "Thant Phyo Aung",
-      "number": "09-12-3456677",
-      "id": 6
     }
   ]
 }
