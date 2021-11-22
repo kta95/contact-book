@@ -21,21 +21,37 @@ const App = () => {
     }
     const allNames = persons.map(person => person.name)
     console.log('all names', allNames)
-    if (allNames.includes(newName)) {
-      alert(`${newName} is already added to phonebook`)
-      setNewName('')
+    const numberRegex = /^[0-9-]+$/  // regex pattern for number requirement
+    console.log('pattern test', numberRegex.test(newNumber))
+    if (numberRegex.test(newNumber)) { 
+      if (allNames.includes(newName)) {
+        const thePerson = persons.find(person => person.name === newName );
+        const index = thePerson.id;
+        if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+          PersonsService
+            .update(index, newPerson)
+            .then(returnedPerson => {
+              setPersons(persons.map(person => person.id !== index ? person : returnedPerson))
+              setNewName('')
+              setNewNumber('')
+            })
+        }
+        setNewName('')
+      } else {
+        PersonsService
+          .create(newPerson)
+          .then(returnPerson => {
+            console.log('newPerson', newPerson)
+            console.log('response data', returnPerson)
+            const personList = persons.concat(returnPerson);
+            console.log('persons', personList)
+            setPersons(personList)
+            setNewName('')
+            setNewNumber(' ')
+          })
+      }
     } else {
-      PersonsService
-        .create(newPerson)
-        .then(returnPerson => {
-          console.log('newPerson', newPerson)
-          console.log('response data', returnPerson)
-          const personList = persons.concat(returnPerson);
-          console.log('persons', personList)
-          setPersons(personList)
-          setNewName('')
-          setNewNumber(' ')
-        })
+      alert(`number shoud not includes alphabets`)
     }
   }
 
@@ -61,13 +77,15 @@ const App = () => {
       })
   }, [])
   
-  const handleDelete = (id) => {
-    PersonsService
-      .remove(id)
-      .then(() => {
-        setPersons(persons.filter(person => person.id !== id))
-        console.log('persons after del', persons)
+  const handleDelete = (id, name) => {
+    if (window.confirm(`Delete ${name}?`)) {
+      PersonsService
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter(person => person.id !== id))
+          console.log('persons after del', persons)
       })
+    }
   }
 
   const nameToShow = persons.filter( person => {
@@ -93,10 +111,10 @@ const App = () => {
       <h3>Numbers</h3>
       {nameToShow.map( person => 
         <Persons 
-          key={person.id} 
+          key={person.id}
           name={person.name} 
           number={person.number}
-          deleteHandler={() => handleDelete(person.id)}/>        
+          deleteHandler={() => handleDelete(person.id, person.name)}/>        
       )}
     </div>
   )
