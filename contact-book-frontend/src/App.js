@@ -3,6 +3,7 @@ import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import PersonsService from './services/PersonsService'
+import Notification from './components/Notification'
 
 const App = () => {
   const [ persons, setPersons ] = useState([]) 
@@ -10,14 +11,14 @@ const App = () => {
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber ] = useState('')
   const [ newFilterWord, setFilterWord ] = useState('')
+  const [ newMessage, setNewMessage ] = useState(null)
 
   // event handler for form submit
   const addPerson = (event) => {
     event.preventDefault();
-    
     const newPerson = {
       name: newName,
-      number: newNumber,
+      number: newNumber
     }
     const allNames = persons.map(person => person.name)
     console.log('all names', allNames)
@@ -27,20 +28,30 @@ const App = () => {
       if (allNames.includes(newName)) {
         const thePerson = persons.find(person => person.name === newName );
         const index = thePerson.id;
-        if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
-          PersonsService
-            .update(index, newPerson)
-            .then(returnedPerson => {
-              setPersons(persons.map(person => person.id !== index ? person : returnedPerson))
-              setNewName('')
-              setNewNumber('')
-            })
+        if (thePerson.number !== newNumber) {
+          if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+            PersonsService
+              .update(index, newPerson)
+              .then(returnedPerson => {
+                setPersons(persons.map(person => person.id !== index ? person : returnedPerson))
+                setNewName('')
+                setNewNumber('')
+              })
+          }
+        } else {
+          alert(`${newName} is already added to phonebook`)
         }
         setNewName('')
       } else {
         PersonsService
           .create(newPerson)
           .then(returnPerson => {
+            setNewMessage(
+              `Added ${newName}`
+            )
+            setTimeout(() => {
+              setNewMessage(null)
+            }, 5000)
             console.log('newPerson', newPerson)
             console.log('response data', returnPerson)
             const personList = persons.concat(returnPerson);
@@ -78,7 +89,7 @@ const App = () => {
   }, [])
   
   const handleDelete = (id, name) => {
-    if (window.confirm(`Delete ${name}?`)) {
+    if (window.confirm(`Delete ${name} from contact?`)) {
       PersonsService
         .remove(id)
         .then(() => {
@@ -100,6 +111,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={newMessage} />
       <Filter word={newFilterWord} eventHandler={handlefilterWord} />
       <h3>add a new</h3>
       <PersonForm name={newName}
