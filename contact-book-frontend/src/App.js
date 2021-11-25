@@ -33,6 +33,12 @@ const App = () => {
             PersonsService
               .update(index, newPerson)
               .then(returnedPerson => {
+                setNewMessage(
+                  `Updated the contact number of ${newName}`
+                )
+                setTimeout(() => {
+                  setNewMessage(null)
+                }, 5000)
                 setPersons(persons.map(person => person.id !== index ? person : returnedPerson))
                 setNewName('')
                 setNewNumber('')
@@ -95,7 +101,15 @@ const App = () => {
         .then(() => {
           setPersons(persons.filter(person => person.id !== id))
           console.log('persons after del', persons)
-      })
+        })
+        .catch(error => {
+          setNewMessage(
+            `Information of ${name} has already been removed from server`
+          )
+          setTimeout(() => {
+            setNewMessage(null)
+          }, 5000)
+        })
     }
   }
 

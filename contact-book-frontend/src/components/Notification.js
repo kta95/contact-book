@@ -5,9 +5,10 @@ const Notification = ({ message }) => {
     if (message == null) {
         return null;
     }
-
+    let flag = (message.includes('removed')) ? 'error' : 'success';
+    
     return (
-        <div className="success">
+        <div className={flag}>
             {message}
         </div>
     )
